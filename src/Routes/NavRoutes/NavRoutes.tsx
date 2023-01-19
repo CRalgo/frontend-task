@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AboutUs from "../../pages/AboutUs/AboutUs";
-import Login from "../../pages/AboutUs/AboutUs";
+import Login from "../../pages/Login/Login";
 import Profile from "../../pages/Profile/Profile";
 
 type Props = {};

@@ -20,6 +20,12 @@ const Navbar = () => {
         <Button href="/">About us</Button>
       </Col>
       {isAuthenticated ? (
+      <>
+      <Col className="gutter-row" span={1.5}>
+        <Button href="/profile">
+          Profile
+        </Button>
+      </Col>
         <Col className="gutter-row" span={2}>
           <Button
             onClick={() => {
@@ -29,6 +35,7 @@ const Navbar = () => {
             Sign out
           </Button>
         </Col>
+      </>
       ) : (
         <Col className="gutter-row" span={1.5}>
           <Button href="/login">Sign in</Button>
