@@ -1,28 +1,38 @@
 import { Button, Col, Row } from "antd";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { useAuth } from "../../hooks/useAuth";
+import { logout } from "../../services/apis";
 
 const Navbar = () => {
   const token = useAuth();
+  const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(token);
 
   useEffect(() => {
     setIsAuthenticated(token);
   }, [token]);
 
-  const handleSignout = () => {
-    localStorage.clear(); // clearing all data from localstorage including token as well
-    window.location.href = "/";
+  const handleSignout = async () => {
+    try {
+      const response = await logout(token);
+      if(response) {
+        localStorage.clear(); // clearing all data from localstorage including token as well
+        window.location.href = "/";
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <Row gutter={5} style={{ marginBottom: 20 }}>
       <Col className="gutter-row" span={1.5}>
-        <Button href="/">About us</Button>
+        <Button onClick={() => navigate("/")}>About us</Button>
       </Col>
       {isAuthenticated ? (
       <>
       <Col className="gutter-row" span={1.5}>
-        <Button href="/profile">
+        <Button onClick={() => navigate("/profile")}>
           Profile
         </Button>
       </Col>
@@ -38,7 +48,7 @@ const Navbar = () => {
       </>
       ) : (
         <Col className="gutter-row" span={1.5}>
-          <Button href="/login">Sign in</Button>
+          <Button onClick={() => navigate("/login")}>Sign in</Button>
         </Col>
       )}
     </Row>

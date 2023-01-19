@@ -41,7 +41,7 @@ export const fetchProfile = async (token: string | boolean) => {
   return {};
 };
 
-export const fetchAuthor = async (token: string | boolean, cancel: any) => {
+export const fetchAuthor = async (token: string | boolean) => {
   try {
     const response = await axios.get(`${BASE_API_URL}/author?token=${token}`);
     return response.data;
@@ -54,9 +54,22 @@ export const fetchAuthor = async (token: string | boolean, cancel: any) => {
   return {};
 };
 
-export const fetchQuote = async (token: string | boolean, cancel: any) => {
+export const fetchQuote = async (token: string | boolean, autherId: number | string | null) => {
   try {
-    const response = await axios.get(`${BASE_API_URL}/quote?token=${token}`);
+    const response = await axios.get(`${BASE_API_URL}/quote?token=${token}&autherId=${autherId}`);
+    return response.data;
+  } catch (e) {
+    if(!axios.isCancel(e)) {
+      throw e;
+    }
+  }
+
+  return {};
+};
+
+export const logout = async (token: string | boolean) => {
+  try {
+    const response = await axios.delete(`${BASE_API_URL}/logout?token=${token}`);
     return response.data;
   } catch (e) {
     if(!axios.isCancel(e)) {

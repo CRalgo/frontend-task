@@ -1,4 +1,5 @@
 import { Button, Modal, Row, Typography } from "antd";
+import LoadingSpiner from "./LoadingSpiner";
 const { Text } = Typography;
 
 type ModalPopupProps = {
@@ -14,11 +15,9 @@ const ModalPopup = ({
   setOpen,
   isAuthorFetched,
   isQuoteFetched,
-  cancleRequest,
 }: ModalPopupProps) => {
   const handleCancel = () => {
     setOpen(false);
-    cancleRequest() // canceling request on close
   };
   return (
     <Modal
@@ -34,11 +33,11 @@ const ModalPopup = ({
     >
       <Row>
         <Text>
-          Step 1: Requesting author.. {isAuthorFetched && "Completed"}
+          Step 1: Requesting author.. {isAuthorFetched ? "Completed" : <LoadingSpiner />}
         </Text>
       </Row>
       <Row>
-        <Text>Step 2: Requesting quote.. {isQuoteFetched && "Completed"}</Text>
+        <Text>Step 2: Requesting quote.. {isQuoteFetched ? "Completed" : <LoadingSpiner />}</Text>
       </Row>
     </Modal>
   );

@@ -23,9 +23,8 @@ function Login() {
     try {
       const { email, password } = values;
       let data = await login(email, password);
-      console.log(data.data.token);
       localStorage.setItem(configKeys.AUTH_TOKEN, data.data.token);
-      navigate("/profile");
+      window.location.href = "/profile";
     } catch (e: any) {
       const { response } = e;
       alert(response.data.message);

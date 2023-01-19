@@ -6,7 +6,7 @@ export const useAuth = (): string | boolean => {
   useEffect(() => {
     let data = localStorage.getItem(configKeys.AUTH_TOKEN);
     setToken(data);
-  });
+  }, []);
 
   return token ? token : false;
 };

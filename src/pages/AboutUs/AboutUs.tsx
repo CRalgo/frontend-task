@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useRef } from "react";
 import { fetchAboutUs } from "../../services/apis";
 
 type StateType = { success: boolean; data: { info: string } };
@@ -20,6 +20,7 @@ function reducer(state: any, action: any) {
 
 const AboutUs = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const renderOnce = useRef(true);
 
   const getAboutUs = async () => {
     try {
@@ -35,14 +36,17 @@ const AboutUs = () => {
 
   useEffect(() => {
     document.title = "About Us";
-    getAboutUs();
+    if(renderOnce.current) {
+      renderOnce.current = false
+      getAboutUs();
+    }
   }, []);
   return (
     <>
       {state && (
         <h2
           data-id="info-label"
-          dangerouslySetInnerHTML={{ __html: state?.data.info }}
+          dangerouslySetInnerHTML={{ __html: state?.data?.info }}
         ></h2>
       )}
     </>

@@ -1,10 +1,9 @@
 import { Col, Row, Image, Typography, Button } from "antd";
-import { useNavigate } from "react-router-dom";
 import { useEffect, useReducer, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { userImg } from "../../utils/imageData";
 import { fetchAuthor, fetchProfile, fetchQuote } from "../../services/apis";
-import Modal  from "../../components/ui/Modal";
+import Modal from "../../components/ui/Modal";
 
 const { Text } = Typography;
 
@@ -12,8 +11,12 @@ const { Text } = Typography;
 type StateType = {
   fullname?: string;
   eamil?: string;
+  authorId?: number | null;
+  quoteId?: number | null;
   hasAuthorRespone?: boolean;
   hasQuoteResponse?: boolean;
+  authorNameRes?: string;
+  authorQuoteRes?: string;
 };
 type ActionType = { type: string; payload: StateType };
 
@@ -21,8 +24,12 @@ type ActionType = { type: string; payload: StateType };
 const initialState: StateType = {
   fullname: "",
   eamil: "",
+  authorId: null,
+  quoteId: null,
   hasAuthorRespone: false,
   hasQuoteResponse: false,
+  authorNameRes: "",
+  authorQuoteRes: "",
 };
 function reducer(state: StateType, action: ActionType) {
   switch (action.type) {
@@ -34,45 +41,71 @@ function reducer(state: StateType, action: ActionType) {
   }
 }
 
-let cancelAuthorReq: any;
-let cancelQuoteReq: any;
-
 const Profile = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [state, dispatch] = useReducer(reducer, initialState);
   const token = useAuth();
-  const navigate = useNavigate();
+
+  const getProfileData = async () => {
+    try {
+      if (token) {
+        let profileData = await fetchProfile(token);
+        console.log("profileRes::", profileData);
+        dispatch({ type: "setData", payload: profileData });
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
 
   useEffect(() => {
-    (async () => {
-      try {
-        let profileData = await fetchProfile(token);
-        dispatch({ type: "setData", payload: profileData });
-      } catch (e) {
-        navigate("/");
-        throw e;
-      }
-    })();
-  }, []);
+    getProfileData();
+  }, [token]);
 
   // handling author and quoute api calls
   const handleAuthorQuoteCalls = async () => {
     setShowModal(true);
-    let authorResponse = await fetchAuthor(token, cancelAuthorReq);
-    if (authorResponse) {
-      dispatch({ type: "setData", payload: { hasAuthorRespone: true } });
-    }
-    let quoteResponse = await fetchQuote(token, cancelQuoteReq);
-    if (quoteResponse) {
-      dispatch({ type: "setData", payload: { hasQuoteResponse: true } });
+    try {
+      let authorResponse = await fetchAuthor(token);
+      console.log("autherRes--", authorResponse);
+      if (authorResponse.success) {
+        dispatch({
+          type: "setData",
+          payload: {
+            authorId: authorResponse.data.authorId,
+            hasAuthorRespone: true,
+            authorNameRes: authorResponse.data.name,
+          },
+        });
+        
+        try {
+          let quoteResponse = await fetchQuote(
+            token,
+            authorResponse?.data?.authorId
+          );
+          if (quoteResponse.success) {
+            dispatch({
+              type: "setData",
+              payload: {
+                quoteId: quoteResponse.data.quoteId,
+                hasQuoteResponse: true,
+                authorQuoteRes: quoteResponse.data.quote,
+              },
+            });
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      if (!authorResponse.success) {
+        setShowModal(false);
+        alert(authorResponse?.data?.error);
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
-  // Canceling request using cancle token
-  const handleCancleRequest = () => {
-    cancelAuthorReq("Canceling the author request");
-    cancelQuoteReq("Canceling the quote request");
-  };
 
   return (
     <>
@@ -93,9 +126,7 @@ const Profile = () => {
               <Button
                 type="primary"
                 size="large"
-                onClick={() => {
-                  handleAuthorQuoteCalls();
-                }}
+                onClick={handleAuthorQuoteCalls}
               >
                 Update
               </Button>
@@ -113,7 +144,6 @@ const Profile = () => {
         setOpen={setShowModal}
         isAuthorFetched={state.hasAuthorRespone}
         isQuoteFetched={state.hasQuoteResponse}
-        cancleRequest={handleCancleRequest}
       />
     </>
   );
